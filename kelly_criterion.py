@@ -64,8 +64,8 @@ def calc_kelly_leverages(securities, start_date, end_date, risk_free_rate=0.04):
     for symbol in securities:
         try:
             hist_prices = web.DataReader(symbol, 'yahoo', start_date, end_date)
-        except IOError, e:
-            print 'Unable to download data for %s. Reason: %s' % (symbol, str(e))
+        except IOError as e:
+            print('Unable to download data for %s. Reason: %s' % (symbol, str(e)))
             return None
 
         f[symbol] = hist_prices
@@ -90,47 +90,47 @@ def calc_kelly_leverages(securities, start_date, end_date, risk_free_rate=0.04):
 def main():
     """Entry point of Kelly Criterion calculation."""
 
-    print "Kelly Criterion calculation"
+    print("Kelly Criterion calculation")
     args = docopt(__doc__, sys.argv[1:])
 
     # Parse risk-free-rate
     try:
         risk_free_rate = float(args['--risk-free-rate'])
-    except ValueError, e:
-        print 'Error converting risk-free-rate to float: %s' % args['--risk-free-rate']
+    except ValueError as e:
+        print('Error converting risk-free-rate to float: %s' % args['--risk-free-rate'])
         sys.exit(-1)
 
     # Verify risk-free-rate
     if not 0 <= risk_free_rate <= 1.0:
-        print 'Error: risk-free-rate is not in between 0 and 1: %.2f' % risk_free_rate
+        print('Error: risk-free-rate is not in between 0 and 1: %.2f' % risk_free_rate)
         sys.exit(-1)
 
     # Parse start and end dates
     try:
         start_date = datetime.strptime(args['<start-date>'], "%Y-%m-%d").date()
-    except ValueError, e:
-        print 'Error parsing start-date: %s' % args['<start-date>']
+    except ValueError as e:
+        print('Error parsing start-date: %s' % args['<start-date>'])
         sys.exit(-1)
 
     try:
         end_date = datetime.strptime(args['<end-date>'], "%Y-%m-%d").date()
-    except ValueError, e:
-        print 'Error parsing end-date: %s' % args['<start-date>']
+    except ValueError as e:
+        print('Error parsing end-date: %s' % args['<start-date>'])
         sys.exit(-1)
 
-    print 'Arguments: risk-free-rate=%s start-date=%s end-date=%s securities=%s' % (args['--risk-free-rate'], start_date, end_date, args['<security>'])
-    print ''
+    print('Arguments: risk-free-rate=%s start-date=%s end-date=%s securities=%s' % (args['--risk-free-rate'], start_date, end_date, args['<security>']))
+    print('')
 
     # Calculate the Kelly Optimal leverages
     leverages = calc_kelly_leverages(args['<security>'], start_date, end_date, risk_free_rate)
 
     # Print the results if calculation was successful
     if leverages:
-        print "Leverages per security: "
+        print("Leverages per security: ")
         for (name, val) in leverages:
-            print "  %s: %.2f" % (name, val)
+            print("  %s: %.2f" % (name, val))
 
-        print "Sum leverage: %.2f " % reduce(lambda x, y: x+y, map(lambda z: z[1], leverages))
+        print("Sum leverage: %.2f " % reduce(lambda x, y: x+y, map(lambda z: z[1], leverages)))
 
 
 if __name__ == '__main__':
